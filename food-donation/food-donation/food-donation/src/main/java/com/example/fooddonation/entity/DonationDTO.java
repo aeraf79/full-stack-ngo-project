@@ -1,11 +1,7 @@
 package com.example.fooddonation.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,20 +12,55 @@ public class DonationDTO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    // Original fields
     private String donationType;
     private String foodName;
     private String mealType;
     private String category;
     private String quantity;
-
     private LocalDateTime donatedDate;
     private LocalDateTime expiryDateTime;
-
     private String city;
     private String amount;
     private String clothesType;
     private String itemName;
 
+    // ✅ NEW FIELDS FOR STATUS TRACKING
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(50) DEFAULT 'PENDING'")
+    private DonationStatus status;
+
+    // Timestamps for each status
+    private LocalDateTime confirmedAt;
+    private LocalDateTime scheduledAt;
+    private LocalDateTime pickupScheduledDate;  // When pickup is scheduled for
+    private LocalDateTime pickedUpAt;
+    private LocalDateTime inTransitAt;
+    private LocalDateTime deliveredAt;
+    private LocalDateTime completedAt;
+
+    // Additional tracking information
+    @Column(length = 500)
+    private String pickupAddress;
+    
+    @Column(columnDefinition = "TEXT")
+    private String specialInstructions;
+    
+    @Column(columnDefinition = "TEXT")
+    private String ngoNotes;
+    
+    @Column(length = 255)
+    private String statusMessage;
+    
+    @Column(length = 100)
+    private String updatedBy;
+    
+    private Integer beneficiariesCount;
+    
+    @Column(columnDefinition = "TEXT")
+    private String impactDescription;
+
+    // Relationships
     @ManyToOne
     @JoinColumn(name = "ngo_id")
     @JsonIgnoreProperties({"donations"})
@@ -40,126 +71,250 @@ public class DonationDTO {
     @JsonIgnoreProperties({"donations"})
     private DonorDTO donor;
 
-
     @PrePersist
     public void setTimestamp() {
         this.donatedDate = LocalDateTime.now();
+        if (this.status == null) {
+            this.status = DonationStatus.PENDING;
+        }
     }
 
+    // Default Constructor
     public DonationDTO() {}
 
-	public int getId() {
-		return id;
-	}
+    // ========== ORIGINAL GETTERS & SETTERS ==========
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public String getDonationType() {
-		return donationType;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public void setDonationType(String donationType) {
-		this.donationType = donationType;
-	}
+    public String getDonationType() {
+        return donationType;
+    }
 
-	public String getFoodName() {
-		return foodName;
-	}
+    public void setDonationType(String donationType) {
+        this.donationType = donationType;
+    }
 
-	public void setFoodName(String foodName) {
-		this.foodName = foodName;
-	}
+    public String getFoodName() {
+        return foodName;
+    }
 
-	public String getMealType() {
-		return mealType;
-	}
+    public void setFoodName(String foodName) {
+        this.foodName = foodName;
+    }
 
-	public void setMealType(String mealType) {
-		this.mealType = mealType;
-	}
+    public String getMealType() {
+        return mealType;
+    }
 
-	public String getCategory() {
-		return category;
-	}
+    public void setMealType(String mealType) {
+        this.mealType = mealType;
+    }
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+    public String getCategory() {
+        return category;
+    }
 
-	public String getQuantity() {
-		return quantity;
-	}
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
-	public void setQuantity(String quantity) {
-		this.quantity = quantity;
-	}
+    public String getQuantity() {
+        return quantity;
+    }
 
-	public LocalDateTime getDonatedDate() {
-		return donatedDate;
-	}
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
+    }
 
-	public void setDonatedDate(LocalDateTime donatedDate) {
-		this.donatedDate = donatedDate;
-	}
+    public LocalDateTime getDonatedDate() {
+        return donatedDate;
+    }
 
-	public LocalDateTime getExpiryDateTime() {
-		return expiryDateTime;
-	}
+    public void setDonatedDate(LocalDateTime donatedDate) {
+        this.donatedDate = donatedDate;
+    }
 
-	public void setExpiryDateTime(LocalDateTime expiryDateTime) {
-		this.expiryDateTime = expiryDateTime;
-	}
+    public LocalDateTime getExpiryDateTime() {
+        return expiryDateTime;
+    }
 
-	public String getCity() {
-		return city;
-	}
+    public void setExpiryDateTime(LocalDateTime expiryDateTime) {
+        this.expiryDateTime = expiryDateTime;
+    }
 
-	public void setCity(String city) {
-		this.city = city;
-	}
+    public String getCity() {
+        return city;
+    }
 
-	public String getAmount() {
-		return amount;
-	}
+    public void setCity(String city) {
+        this.city = city;
+    }
 
-	public void setAmount(String amount) {
-		this.amount = amount;
-	}
+    public String getAmount() {
+        return amount;
+    }
 
-	public String getClothesType() {
-		return clothesType;
-	}
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
 
-	public void setClothesType(String clothesType) {
-		this.clothesType = clothesType;
-	}
+    public String getClothesType() {
+        return clothesType;
+    }
 
-	public String getItemName() {
-		return itemName;
-	}
+    public void setClothesType(String clothesType) {
+        this.clothesType = clothesType;
+    }
 
-	public void setItemName(String itemName) {
-		this.itemName = itemName;
-	}
+    public String getItemName() {
+        return itemName;
+    }
 
-	public NgoDTO getNgo() {
-		return ngo;
-	}
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
 
-	public void setNgo(NgoDTO ngo) {
-		this.ngo = ngo;
-	}
+    public NgoDTO getNgo() {
+        return ngo;
+    }
 
-	public DonorDTO getDonor() {
-		return donor;
-	}
+    public void setNgo(NgoDTO ngo) {
+        this.ngo = ngo;
+    }
 
-	public void setDonor(DonorDTO donor) {
-		this.donor = donor;
-	}
+    public DonorDTO getDonor() {
+        return donor;
+    }
 
-    // Getters & Setters
-    // ... (keep same)
+    public void setDonor(DonorDTO donor) {
+        this.donor = donor;
+    }
+
+    // ✅ NEW GETTERS & SETTERS FOR STATUS TRACKING
+
+    public DonationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DonationStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getConfirmedAt() {
+        return confirmedAt;
+    }
+
+    public void setConfirmedAt(LocalDateTime confirmedAt) {
+        this.confirmedAt = confirmedAt;
+    }
+
+    public LocalDateTime getScheduledAt() {
+        return scheduledAt;
+    }
+
+    public void setScheduledAt(LocalDateTime scheduledAt) {
+        this.scheduledAt = scheduledAt;
+    }
+
+    public LocalDateTime getPickupScheduledDate() {
+        return pickupScheduledDate;
+    }
+
+    public void setPickupScheduledDate(LocalDateTime pickupScheduledDate) {
+        this.pickupScheduledDate = pickupScheduledDate;
+    }
+
+    public LocalDateTime getPickedUpAt() {
+        return pickedUpAt;
+    }
+
+    public void setPickedUpAt(LocalDateTime pickedUpAt) {
+        this.pickedUpAt = pickedUpAt;
+    }
+
+    public LocalDateTime getInTransitAt() {
+        return inTransitAt;
+    }
+
+    public void setInTransitAt(LocalDateTime inTransitAt) {
+        this.inTransitAt = inTransitAt;
+    }
+
+    public LocalDateTime getDeliveredAt() {
+        return deliveredAt;
+    }
+
+    public void setDeliveredAt(LocalDateTime deliveredAt) {
+        this.deliveredAt = deliveredAt;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
+    public String getPickupAddress() {
+        return pickupAddress;
+    }
+
+    public void setPickupAddress(String pickupAddress) {
+        this.pickupAddress = pickupAddress;
+    }
+
+    public String getSpecialInstructions() {
+        return specialInstructions;
+    }
+
+    public void setSpecialInstructions(String specialInstructions) {
+        this.specialInstructions = specialInstructions;
+    }
+
+    public String getNgoNotes() {
+        return ngoNotes;
+    }
+
+    public void setNgoNotes(String ngoNotes) {
+        this.ngoNotes = ngoNotes;
+    }
+
+    public String getStatusMessage() {
+        return statusMessage;
+    }
+
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
+    }
+
+    public String getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(String updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    public Integer getBeneficiariesCount() {
+        return beneficiariesCount;
+    }
+
+    public void setBeneficiariesCount(Integer beneficiariesCount) {
+        this.beneficiariesCount = beneficiariesCount;
+    }
+
+    public String getImpactDescription() {
+        return impactDescription;
+    }
+
+    public void setImpactDescription(String impactDescription) {
+        this.impactDescription = impactDescription;
+    }
 }

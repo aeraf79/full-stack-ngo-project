@@ -1,6 +1,8 @@
 package com.example.fooddonation.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -15,6 +17,13 @@ public class CartItemDTO {
     @JoinColumn(name = "cart_id")
     @JsonBackReference(value = "cart-items")
     private CartDTO cart;
+    
+    @ManyToOne
+    @JoinColumn(name = "ngo_id")
+    @JsonIgnoreProperties({"donations"})
+    private NgoDTO ngo;
+
+    
 
     private String donationType;
     private String foodName;
@@ -27,6 +36,14 @@ public class CartItemDTO {
     private String itemName;
 
     public CartItemDTO() {}
+    
+    public NgoDTO getNgo() {
+        return ngo;
+    }
+
+    public void setNgo(NgoDTO ngo) {
+        this.ngo = ngo;
+    }
 
 	public int getId() {
 		return id;

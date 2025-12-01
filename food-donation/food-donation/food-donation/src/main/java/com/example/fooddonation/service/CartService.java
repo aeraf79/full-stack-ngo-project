@@ -65,7 +65,14 @@ public class CartService {
 
     public CartDTO addItem(int cartId, CartItemDTO item) {
         CartDTO cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+            .orElseThrow(() -> new RuntimeException("Cart not found"));
+        
+        // ✅ FIX: Make sure the item has its NGO set
+        // If item.getNgo() is null, use cart's NGO as fallback
+        if (item.getNgo() == null) {
+            item.setNgo(cart.getNgo());
+        }
+        
         item.setCart(cart);
         cart.getCartItems().add(item);
         return cartRepository.save(cart);
@@ -99,7 +106,7 @@ public class CartService {
     @Transactional
     public void checkout(int cartId) {
         CartDTO cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new RuntimeException("Cart not found"));
+            .orElseThrow(() -> new RuntimeException("Cart not found"));
 
         for (CartItemDTO item : cart.getCartItems()) {
             DonationDTO d = new DonationDTO();
@@ -113,7 +120,10 @@ public class CartService {
             d.setClothesType(item.getClothesType());
             d.setItemName(item.getItemName());
             d.setDonor(cart.getDonor());
-            d.setNgo(cart.getNgo());
+            
+            // ✅ FIX: Use the item's NGO instead of cart's NGO
+            d.setNgo(item.getNgo());  // Changed from cart.getNgo()
+            
             donationRepository.save(d);
         }
 
